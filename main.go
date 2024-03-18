@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"machine"
-	"strconv"
-	"strings"
 	"time"
 
 	"machine/usb/hid/joystick"
@@ -67,62 +65,78 @@ func main() {
 	uart := machine.Serial
 	uart.Configure(machine.UARTConfig{TX: machine.UART_TX_PIN, RX: machine.UART_RX_PIN})
 
-	message := ""
+	// message := ""
 
 	time.Sleep(4 * time.Second)
 
 	fmt.Println("Started")
+
+	val := -32767
+	press := true
 	for {
-		if uart.Buffered() > 0 {
-			b, err := uart.ReadByte()
-			if err != nil {
-				print("err:" + err.Error())
-			} else {
-				if b != byte(13) {
-					message += string(b)
-				} else {
-					prefix := message[0:1]
-					message = strings.TrimPrefix(message, prefix)
-					switch prefix {
-					case "B", "b": // button press/release
-						btn_64, err := strconv.Atoi(message)
-						if err == nil {
-							press := false     // release by default
-							if prefix == "B" { // Button press
-								press = true
-							}
-							gamepad.SetButton(int(btn_64), press)
-							gamepad.SendState()
-						}
-					case "X", "Y", "Z", "x", "y", "z": // Axis
-						val_64, err := strconv.Atoi(message)
-						if err == nil {
-							axis := -1 // In case it doesn't match
-							if -32767 <= val_64 && val_64 <= 32767 {
-								switch prefix {
-								case "X": // Left Stick < to >
-									axis = 0
-								case "Y": // Left Stick ^ to v
-									axis = 1
-								case "Z": // Right Stick < to >
-									axis = 2
-								case "x": // Right Stick ^ to v
-									axis = 3
-								case "y": // Left Trigger
-									axis = 4
-								case "z": // Right Trigger
-									axis = 5
-								}
-								if axis != -1 {
-									gamepad.SetAxis(axis, int(val_64))
-									gamepad.SendState()
-								}
-							}
-						}
-					}
-					message = ""
-				}
-			}
+		gamepad.SetButton(0, press)
+		gamepad.SetAxis(0, val)
+		gamepad.SendState()
+		if val < 1 {
+			val += 32767
+		} else {
+			val = -32767
 		}
+
+		press = !press
+		time.Sleep(1 * time.Second)
 	}
+	// for {
+	// 	if uart.Buffered() > 0 {
+	// 		b, err := uart.ReadByte()
+	// 		if err != nil {
+	// 			print("err:" + err.Error())
+	// 		} else {
+	// 			if b != byte(13) {
+	// 				message += string(b)
+	// 			} else {
+	// 				prefix := message[0:1]
+	// 				message = strings.TrimPrefix(message, prefix)
+	// 				switch prefix {
+	// 				case "B", "b": // button press/release
+	// 					btn_64, err := strconv.Atoi(message)
+	// 					if err == nil {
+	// 						press := false     // release by default
+	// 						if prefix == "B" { // Button press
+	// 							press = true
+	// 						}
+	// 						gamepad.SetButton(int(btn_64), press)
+	// 						gamepad.SendState()
+	// 					}
+	// 				case "X", "Y", "Z", "x", "y", "z": // Axis
+	// 					val_64, err := strconv.Atoi(message)
+	// 					if err == nil {
+	// 						axis := -1 // In case it doesn't match
+	// 						if -32767 <= val_64 && val_64 <= 32767 {
+	// 							switch prefix {
+	// 							case "X": // Left Stick < to >
+	// 								axis = 0
+	// 							case "Y": // Left Stick ^ to v
+	// 								axis = 1
+	// 							case "Z": // Right Stick < to >
+	// 								axis = 2
+	// 							case "x": // Right Stick ^ to v
+	// 								axis = 3
+	// 							case "y": // Left Trigger
+	// 								axis = 4
+	// 							case "z": // Right Trigger
+	// 								axis = 5
+	// 							}
+	// 							if axis != -1 {
+	// 								gamepad.SetAxis(axis, int(val_64))
+	// 								gamepad.SendState()
+	// 							}
+	// 						}
+	// 					}
+	// 				}
+	// 				message = ""
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
