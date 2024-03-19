@@ -15,10 +15,5 @@ There are currently only a few commands:
 
 - b99 - will release button 99, where 99 is typically in the range 1 to 16
 - B99 - will press button 99
-
-To be implemented - Axis:
-- [X|Y|Z]99999 - will change the X/Y/Z axis value to 99999, which has a range of 1 to 65535 where 32768 is the middle position
-- Also x|y|z are the 'rotation' axis
-- N.B. The triggers will still use the whole range, so 1 means 'at rest'
-
-~~May decide to use 1 to 255 only for triggers~~
+- [X|Y|Z|x|y|z]99999 - will change the X/Y/Z/x/y/z axis value to 99999, which has a range of -32767 to 32767 where 0 is the middle position
+  - _The triggers will still use the whole range, so -32767 means 'at rest'_
