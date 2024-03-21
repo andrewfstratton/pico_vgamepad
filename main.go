@@ -58,7 +58,7 @@ func CustomDefinitions() joystick.Definitions {
 func init() {
 	// Do this through flash ldflags options
 	// descriptor.Configure(0x2e8a, 0x0004)
-	joystick.UseSettings(CustomDefinitions(), nil, nil, CustomGamepadHIDReport) // XboxHIDDescriptor)
+	joystick.UseSettings(CustomDefinitions(), nil, nil, CustomGamepadHIDReport)
 }
 
 func main() {
@@ -81,7 +81,9 @@ func main() {
 			} else {
 				if b != byte(13) {
 					message += string(b)
+					fmt.Print(string(b))
 				} else {
+					fmt.Println()
 					prefix := message[0:1]
 					message = strings.TrimPrefix(message, prefix)
 					switch prefix {
@@ -116,6 +118,7 @@ func main() {
 								}
 								if axis != -1 {
 									gamepad.SetAxis(axis, int(val_64))
+									fmt.Println("Message:", prefix+message, " Axis:", axis, " send:", val_64, " State:Axis0Value:", gamepad.State.Axises[0].Value)
 									gamepad.SendState()
 								}
 							}
