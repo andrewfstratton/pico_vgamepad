@@ -1,0 +1,1 @@
+tinygo build -o vpicopad.uf2 -target=pico main.go
